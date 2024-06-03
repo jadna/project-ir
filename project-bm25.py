@@ -12,7 +12,7 @@ random.seed(42)
 
 # Elasticsearch
 hostname = "localhost" #localhost
-index_name = "hotpotqa" # scifact
+index_name = "scifact" # scifact
 
 
 logging.basicConfig(format='%(asctime)s - %(message)s',
