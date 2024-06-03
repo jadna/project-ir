@@ -68,17 +68,17 @@ data = {
 df = pd.DataFrame(data, index=['@{}'.format(k) for k in bm25.k_values])
 # df = pd.DataFrame(data, index=False)
 
-# xibir o DataFrame
+# Exibir o DataFrame
 # print(df)
  
 # Retrieval Exemplo
 query_id, scores_dict = random.choice(list(results.items()))
 logging.info("Query : %s\n" % queries[query_id])
 
-scores = sorted(scores_dict.items(), key=lambda item: item[1], reverse=True)
-for rank in range(10):
-    doc_id = scores[rank][0]
-    logging.info("Doc %d: %s [%s] - %s\n" % (rank+1, doc_id, corpus[doc_id].get("title"), corpus[doc_id].get("text")))
+# scores = sorted(scores_dict.items(), key=lambda item: item[1], reverse=True)
+# for rank in range(10):
+#     doc_id = scores[rank][0]
+#     logging.info("Doc %d: %s [%s] - %s\n" % (rank+1, doc_id, corpus[doc_id].get("title"), corpus[doc_id].get("text")))
 
 # Salvando os tempos do benchmark
 time_taken_all = {}
