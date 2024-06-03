@@ -22,7 +22,6 @@ from beir.retrieval.search.lexical import BM25Search as BM25
 import pathlib, os, random
 import logging
 import pandas as pd
-import csv
 
 #### Just some code to print debug information to stdout
 logging.basicConfig(format='%(asctime)s - %(message)s',
@@ -76,21 +75,22 @@ results = retriever.retrieve(corpus, queries)
 logging.info("Retriever evaluation for k in: {}".format(retriever.k_values))
 ndcg, _map, recall, precision = retriever.evaluate(qrels, results, retriever.k_values)
 
-# field names
-fields = ['ndcg', 'map', 'recall', 'precision']
- 
-# Define a dictionary containing employee data
-data = {'ndcg':ndcg,
-        'map':_map,
-        'recall':recall,
-        'precision':precision}
- 
-# Convert the dictionary into DataFrame 
-df = pd.DataFrame(data)
- 
-# select two columns
-print(df)
+# Criar um DataFrame com os dados
+data = {
+    'position': ['@{}'.format(k) for k in retriever.k_values],
+    'ndcg': [ndcg[k] for k in ndcg],
+    'map': [_map[k] for k in _map],
+    'recall': [recall[k] for k in recall],
+    'precision': [precision[k] for k in precision]
+}
 
+# df = pd.DataFrame(data, index=['@{}'.format(k) for k in retriever.k_values])
+df = pd.DataFrame(data, index=False)
+
+# Exibir o DataFrame
+print(df)
+df.to_csv('bm25_'+index_name+'.csv')
+ 
 #### Retrieval Example ####
 query_id, scores_dict = random.choice(list(results.items()))
 logging.info("Query : %s\n" % queries[query_id])
