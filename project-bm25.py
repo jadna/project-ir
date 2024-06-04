@@ -26,7 +26,8 @@ out_dir = os.path.join(pathlib.Path(__file__).parent.absolute(), "datasets")
 data_path = util.download_and_unzip(url, out_dir)
 
 # Forneçe o caminho de dados onde o dataset foi baixado, descompactado e carrega os dados
-corpus, queries, qrels = GenericDataLoader(data_path).load(split="test")
+split = "test"
+corpus, queries, qrels = GenericDataLoader(data_path).load(split=split)
 corpus_ids, query_ids = list(corpus), list(queries)
 
 # Amostra aleatória dos pares do Corpus Original
@@ -38,7 +39,7 @@ corpus_new = {corpus_id: corpus[corpus_id] for corpus_id in corpus_set}
 
 # Remove k documentos relevantes já vistos e amostras de documentos aleatoriamente
 remaining_corpus = list(set(corpus_ids) - corpus_set)
-sample = 100000 - len(corpus_set)
+sample = 1000 - len(corpus_set)
 
 for corpus_id in random.sample(remaining_corpus, sample):
     corpus_new[corpus_id] = corpus[corpus_id]
@@ -57,28 +58,15 @@ bm25.retriever.index(corpus_new)
 logging.info("Retriever evaluation for k in: {}".format(bm25.k_values)) 
 ndcg, _map, recall, precision = bm25.evaluate(qrels, results, bm25.k_values)
 
-# Criando um DataFrame com os dados
-data = {
-    'ndcg': [ndcg[k] for k in ndcg],
-    'map': [_map[k] for k in _map],
-    'recall': [recall[k] for k in recall],
-    'precision': [precision[k] for k in precision]
-}
-
-df = pd.DataFrame(data, index=['@{}'.format(k) for k in bm25.k_values])
-# df = pd.DataFrame(data, index=False)
-
-# Exibir o DataFrame
-# print(df)
  
 # Retrieval Exemplo
 query_id, scores_dict = random.choice(list(results.items()))
 logging.info("Query : %s\n" % queries[query_id])
 
-# scores = sorted(scores_dict.items(), key=lambda item: item[1], reverse=True)
-# for rank in range(10):
-#     doc_id = scores[rank][0]
-#     logging.info("Doc %d: %s [%s] - %s\n" % (rank+1, doc_id, corpus[doc_id].get("title"), corpus[doc_id].get("text")))
+scores = sorted(scores_dict.items(), key=lambda item: item[1], reverse=True)
+for rank in range(10):
+    doc_id = scores[rank][0]
+    logging.info("Doc %d: %s [%s] - %s\n" % (rank+1, doc_id, corpus[doc_id].get("title"), corpus[doc_id].get("text")))
 
 # Salvando os tempos do benchmark
 time_taken_all = {}
@@ -101,4 +89,19 @@ for query_id in query_ids:
 time_taken = list(time_taken_all.values())
 logging.info("Average time taken: {:.2f}ms".format(sum(time_taken)/len(time_taken_all)))
 
-df.to_csv('bm25_'+index_name+'.csv')
+# Criando um DataFrame com os dados
+data = {
+    'ndcg': [ndcg[k] for k in ndcg],
+    'map': [_map[k] for k in _map],
+    'recall': [recall[k] for k in recall],
+    'precision': [precision[k] for k in precision],
+    'average_time': (sum(time_taken)/len(time_taken_all))
+}
+
+df = pd.DataFrame(data, index=['@{}'.format(k) for k in bm25.k_values])
+# df = pd.DataFrame(data, index=False)
+
+# Exibir o DataFrame
+# print(df)
+
+df.to_csv('./output/bm25_'+index_name+'_'+split+'.csv')

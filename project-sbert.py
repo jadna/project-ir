@@ -9,6 +9,7 @@ import random
 import pandas as pd
 import datetime
 
+
 logging.basicConfig(format='%(asctime)s - %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S',
                     level=logging.INFO,
@@ -23,7 +24,8 @@ data_path = util.download_and_unzip(url, out_dir)
 
 
 # Forneçe o caminho de dados onde o dataset foi baixado, descompactado e carrega os dados
-corpus, queries, qrels = GenericDataLoader(data_folder=data_path).load(split="test")
+split = "test"
+corpus, queries, qrels = GenericDataLoader(data_folder=data_path).load(split=split)
 corpus_ids, query_ids = list(corpus), list(queries)
 
 
@@ -46,7 +48,8 @@ model = DRES(models.SentenceBERT((
 
 
 # A função de score deve ser (cos_sim) para similaridade de cosseno ou (dot) para produto escalar
-retriever = EvaluateRetrieval(model, score_function="dot")
+score_function = "dot"
+retriever = EvaluateRetrieval(model, score_function=score_function)
 
 # Recuperar resultados densos (o formato dos resultados é idêntico ao qrels)
 results = retriever.retrieve(corpus, queries)
@@ -56,18 +59,6 @@ results = retriever.retrieve(corpus, queries)
 logging.info("Retriever evaluation for k in: {}".format(retriever.k_values))
 ndcg, _map, recall, precision = retriever.evaluate(qrels, results, retriever.k_values)
 
-# Criando um DataFrame com os dados
-data = {
-    'ndcg': [ndcg[k] for k in ndcg],
-    'map': [_map[k] for k in _map],
-    'recall': [recall[k] for k in recall],
-    'precision': [precision[k] for k in precision]
-}
-
-df = pd.DataFrame(data, index=['@{}'.format(k) for k in retriever.k_values])
-
-# Exibi o DataFrame
-# print(df)
 
 # Retrieval Exemplo
 top_k = 10
@@ -89,4 +80,18 @@ logging.info("Average time taken: {:.2f}ms".format((time_taken)/len(queries)))
 # logging.info("{:.2f}ms".format(time_taken))
 
 
-df.to_csv('sbert_'+dataset+'.csv')
+# Criando um DataFrame com os dados
+data = {
+    'ndcg': [ndcg[k] for k in ndcg],
+    'map': [_map[k] for k in _map],
+    'recall': [recall[k] for k in recall],
+    'precision': [precision[k] for k in precision],
+    'average_time': ((time_taken)/len(queries))
+}
+
+df = pd.DataFrame(data, index=['@{}'.format(k) for k in retriever.k_values])
+
+# Exibi o DataFrame
+# print(df)
+
+df.to_csv('./output/sbert_'+score_function+'_'+split+'.csv')
