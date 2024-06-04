@@ -48,7 +48,7 @@ model = DRES(models.SentenceBERT((
 
 
 # A função de score deve ser (cos_sim) para similaridade de cosseno ou (dot) para produto escalar
-score_function = "dot"
+score_function = "cos_sim"
 retriever = EvaluateRetrieval(model, score_function=score_function)
 
 # Recuperar resultados densos (o formato dos resultados é idêntico ao qrels)
