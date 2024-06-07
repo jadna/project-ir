@@ -26,8 +26,7 @@ out_dir = os.path.join(pathlib.Path(__file__).parent.absolute(), "datasets")
 data_path = util.download_and_unzip(url, out_dir)
 
 # Forneçe o caminho de dados onde o dataset foi baixado, descompactado e carrega os dados
-split = "test"
-corpus, queries, qrels = GenericDataLoader(data_path).load(split=split)
+corpus, queries, qrels = GenericDataLoader(data_path).load(split="test")
 corpus_ids, query_ids = list(corpus), list(queries)
 
 # Amostra aleatória dos pares do Corpus Original
@@ -104,4 +103,4 @@ df = pd.DataFrame(data, index=['@{}'.format(k) for k in bm25.k_values])
 # Exibir o DataFrame
 # print(df)
 
-df.to_csv('./output/bm25_'+index_name+'_'+split+'.csv')
+df.to_csv('./output/bm25_'+index_name+'.csv')

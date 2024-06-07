@@ -24,8 +24,7 @@ data_path = util.download_and_unzip(url, out_dir)
 
 
 # Forneçe o caminho de dados onde o dataset foi baixado, descompactado e carrega os dados
-split = "test"
-corpus, queries, qrels = GenericDataLoader(data_folder=data_path).load(split=split)
+corpus, queries, qrels = GenericDataLoader(data_folder=data_path).load(split="test")
 corpus_ids, query_ids = list(corpus), list(queries)
 
 
@@ -94,4 +93,4 @@ df = pd.DataFrame(data, index=['@{}'.format(k) for k in retriever.k_values])
 # Exibi o DataFrame
 # print(df)
 
-df.to_csv('./output/sbert_'+score_function+'_'+split+'.csv')
+df.to_csv('./output/sbert_'+score_function+'.csv')
